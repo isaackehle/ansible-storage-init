@@ -1,0 +1,7 @@
+---
+
+# vars file for python
+
+  drive_path: "/dev/{{ disk_name }}"
+  partition_name: "{{ disk_name }}{{ partition_num }}"
+  partition_path: "/dev/{{ partition_name }}"

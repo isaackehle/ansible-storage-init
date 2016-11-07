@@ -1,0 +1,95 @@
+---
+  - name: Make sure parted is installed
+    become: true
+    apt: "name=parted state=installed"
+
+  - name: Test if the partition already exists
+    shell: lsblk -o NAME | grep {{ partition_name }}
+    become: true
+    register: part_tst
+
+#  - debug: "msg='part_tst: {{ part_tst }}'"
+
+  - name: Partition the new storage
+    become: true
+    raw: parted -s {{ drive_path }} mklabel gpt mkpart primary ext4 0% 100%
+    when: not part_tst.stdout
+
+  - name: Get TYPE
+    command: blkid -s TYPE -o value {{ partition_path }}
+    register: type_out
+    become: true
+
+  - set_fact:
+      fs_type_curr: "{{ type_out.stdout }}"
+
+  - name: Make the EXT4 File System
+    become: true
+    raw: mkfs.{{ fs_type }} {{ partition_path }}
+    when: not fs_type_curr
+
+  - name: Mount up device to get uuid
+    become: yes
+    mount:
+      name: "{{ mnt_loc }}"
+      src: "{{ partition_path }}"
+      fstype: "{{ fs_type }}"
+      opts: "rw,relatime,data=ordered"
+      state: present
+
+  - name: Get UUID
+    command: blkid -s UUID -o value {{ partition_path }}
+    register: uuid_out
+    become: true
+
+  - set_fact:
+      uuid: "{{ uuid_out.stdout }}"
+
+  - name: Unmount device
+    become: yes
+    mount:
+      name: "{{ mnt_loc }}"
+      src: "{{ partition_path }}"
+      fstype: "{{ fs_type }}"
+      opts: "rw,relatime,data=ordered"
+      state: absent
+
+  - name: Mount device and save to fstab
+    become: yes
+    mount:
+      name: "{{ mnt_loc }}"
+      src: "UUID={{ uuid }}"
+      fstype: "{{ fs_type }}"
+      opts: "rw,relatime,data=ordered"
+      state: mounted
+
+
+
+#    - name: Stop MongoDB Service
+#      become: true
+#      service: name=mongod state=stopped
+#
+##    - name: Show MongoDB Service
+##      raw: sudo systemctl status mongod.service
+#
+#    - name: Move db data directory
+#      raw: sudo cp -r /srv/mongodb /mnt/data
+#
+#    - name: backup current
+#      raw: sudo mv /srv/mongodb /srv/mongodb.bak
+#
+#    - name: change owner
+#      raw: sudo chown mongodb.mongodb -R /mnt/data/mongodb/
+#
+#    - name: link
+#      raw: sudo ln -s /mnt/data/mongodb /srv/mongodb
+#
+##    - name: move directly
+##      raw: sudo mv /srv/mongodb /mnt/data
+#
+#    - name: Start MongoDB Service
+#      become: true
+#      service: name=mongod state=started
+#
+##    - name: Show MongoDB Service
+##      raw: sudo systemctl status mongod.service
