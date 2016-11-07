@@ -6,7 +6,7 @@ Available on Ansible Galaxy: [pgkehle.storage-init](https://galaxy.ansible.com/p
 
 # Examples
 
-## Example to generate a Certificate Signing Request 
+## Example to create a 1 TB storage block that will eventually be assigned to `/dev/sdb1/`   
 
 ```YAML
 - hosts: all
@@ -18,28 +18,14 @@ Available on Ansible Galaxy: [pgkehle.storage-init](https://galaxy.ansible.com/p
   vars:
 
     # Better to have in common vars_files input file  
-    storage:
-      array_num: 1
-      size:
-        quan: 1
-        type: "T"
-    disk_name: "sdb"
-
-    # 
-    partition_num: 1
     mnt_loc: "/mnt/data"                                   
-    drive_path: "/dev/{{ disk_name }}"                        
-    partition_name: "{{ disk_name }}{{ partition_num }}"      
-    partition_path: "/dev/{{ partition_name }}"               
+    disk_name: "sdb"
+    partition_num: 1
+    fs_type: "ext4"
 
   roles:
     - { role: pgkehle.storage-init }
 ```
-
-This will create a csr in:
-
-- `~/certs/<fqdn>.csr`
-
 
 ## License
 
