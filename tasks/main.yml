@@ -3,17 +3,17 @@
     become: true
     apt: "name=parted state=installed"
 
-  - name: Test if the partition already exists
-    shell: lsblk -o NAME | grep {{ partition_name }}
-    become: true
-    register: part_tst
+#  - name: Test if the partition already exists
+#    shell: lsblk -o NAME | grep {{ partition_name }}
+#    become: true
+#    register: part_tst
 
 #  - debug: "msg='part_tst: {{ part_tst }}'"
 
   - name: Partition the new storage
     become: true
     raw: parted -s {{ drive_path }} mklabel gpt mkpart primary ext4 0% 100%
-    when: not part_tst.stdout
+#    when: not part_tst.stdout
 
   - name: Get TYPE
     command: blkid -s TYPE -o value {{ partition_path }}
