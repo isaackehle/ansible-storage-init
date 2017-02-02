@@ -1,6 +1,6 @@
 galaxy_info:
   author: Paul Kehle <twitter.com/pgkehle>
-  description: Initialize newly-added storage on a system
+  description: Initialize Storage for a system
   company: pgkehle
   license: MIT
   min_ansible_version: 1.9

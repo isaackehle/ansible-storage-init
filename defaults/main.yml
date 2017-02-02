@@ -1,9 +1,4 @@
 ---
-# defaults for python
-
-  mnt_loc: "/mnt/data"
-  partition_name: "sdb1"
-  drive_path: "/dev/sdb"
-  partition_path: "/dev/sdb1"
-  fs_type: "ext4"
-  force: false
+mnt_loc:        "/mnt/data"
+partition_num:  1
+force:          false

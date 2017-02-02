@@ -6,9 +6,9 @@ Available on Ansible Galaxy: [pgkehle.storage-init](https://galaxy.ansible.com/p
 
 # Examples
 
-## Example to create a 1 TB storage block that will eventually be assigned to `/dev/sdb1/`   
+Example to create a 1 TB storage block that will eventually be assigned to `/dev/sdb1/`   
 
-```YAML
+```yaml
 - hosts: all
   remote_user: root
 
@@ -21,7 +21,15 @@ Available on Ansible Galaxy: [pgkehle.storage-init](https://galaxy.ansible.com/p
     mnt_loc: "/mnt/data"                                   
     disk_name: "sdb"
     partition_num: 1
-    fs_type: "ext4"
+
+    storage:
+      array_num: 1
+      size:
+        quan: 1
+        type: "T"
+      name: "sdb"
+      fs_type: "xfs"
+
 
   roles:
     - { role: pgkehle.storage-init }
