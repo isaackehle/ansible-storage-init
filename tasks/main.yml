@@ -1,39 +1,66 @@
 ---
-  - name: Make sure parted is installed
+  - name: Make sure packages are installed
     become: true
-    apt: "name=parted state=installed"
+    apt: name={{item}} state=installed
+    with_items:
+      - parted
+      - xfsprogs
 
-#  - name: Test if the partition already exists
-#    shell: lsblk -o NAME | grep {{ partition_name }}
-#    become: true
-#    register: part_tst
+  - name: Check if mounted
+    become: true
+    raw: mount
+    register: mnt_out
+    ignore_errors: yes
 
-#  - debug: "msg='part_tst: {{ part_tst }}'"
+#  - debug: var=mnt_out
+
+  - name: Unmount device, if mounted
+    become: true
+    mount:
+      name: "{{ mnt_loc }}"
+      state: unmounted
+    when: 'mnt_loc in mnt_out.stdout'
+
+  - name: Test if the partition already exists
+    shell: lsblk -o NAME | grep {{ partition_name }}
+    become: true
+    register: part_tst
 
   - name: Partition the new storage
     become: true
-    raw: parted -s {{ drive_path }} mklabel gpt mkpart primary ext4 0% 100%
-#    when: not part_tst.stdout
+    raw: parted -s {{ dev_path }} mklabel gpt mkpart primary {{ storage.fs_type }} 0% 100%
+    when: not part_tst.stdout
 
   - name: Get TYPE
+    become: true
     command: blkid -s TYPE -o value {{ partition_path }}
     register: type_out
-    become: true
 
   - set_fact:
       fs_type_curr: "{{ type_out.stdout }}"
 
-  - name: Make the EXT4 File System
+#  - debug: var=fs_type_curr
+#  - debug: var=storage.fs_type
+
+  - name: Make the "{{storage.fs_type}}" File System
     become: true
-    raw: mkfs.{{ fs_type }} {{ partition_path }}
-    when: not fs_type_curr
+    raw: mkfs.{{ storage.fs_type }} {{ partition_path }} -f
+    when: not fs_type_curr is defined or fs_type_curr == "" or fs_type_curr != storage.fs_type
+
+  - stat:
+      path: "{{ mnt_loc }}"
+    register: st
+
+  - name: Kill {{ mnt_loc }} if it exists
+    become: true
+    file: path="{{ mnt_loc }}" state=absent
 
   - name: Mount up device to get uuid
-    become: yes
+    become: true
     mount:
       name: "{{ mnt_loc }}"
       src: "{{ partition_path }}"
-      fstype: "{{ fs_type }}"
+      fstype: "{{ storage.fs_type }}"
       opts: "rw,relatime,data=ordered"
       state: present
 
@@ -45,51 +72,25 @@
   - set_fact:
       uuid: "{{ uuid_out.stdout }}"
 
+  - set_fact:
+      mount_opts: "rw,relatime,data=ordered"
+    when: storage.fs_type == "ext4"
+
+  - set_fact:
+      mount_opts: "rw,relatime,attr2,inode64,noquota"
+    when: storage.fs_type == "xfs"
+
   - name: Unmount device
-    become: yes
+    become: true
     mount:
       name: "{{ mnt_loc }}"
-      src: "{{ partition_path }}"
-      fstype: "{{ fs_type }}"
-      opts: "rw,relatime,data=ordered"
       state: absent
 
   - name: Mount device and save to fstab
-    become: yes
+    become: true
     mount:
       name: "{{ mnt_loc }}"
       src: "UUID={{ uuid }}"
-      fstype: "{{ fs_type }}"
-      opts: "rw,relatime,data=ordered"
+      fstype: "{{ storage.fs_type }}"
+      opts: "{{ mount_opts }}"
       state: mounted
-
-
-
-#    - name: Stop MongoDB Service
-#      become: true
-#      service: name=mongod state=stopped
-#
-##    - name: Show MongoDB Service
-##      raw: sudo systemctl status mongod.service
-#
-#    - name: Move db data directory
-#      raw: sudo cp -r /srv/mongodb /mnt/data
-#
-#    - name: backup current
-#      raw: sudo mv /srv/mongodb /srv/mongodb.bak
-#
-#    - name: change owner
-#      raw: sudo chown mongodb.mongodb -R /mnt/data/mongodb/
-#
-#    - name: link
-#      raw: sudo ln -s /mnt/data/mongodb /srv/mongodb
-#
-##    - name: move directly
-##      raw: sudo mv /srv/mongodb /mnt/data
-#
-#    - name: Start MongoDB Service
-#      become: true
-#      service: name=mongod state=started
-#
-##    - name: Show MongoDB Service
-##      raw: sudo systemctl status mongod.service
