@@ -28,7 +28,7 @@
 
   - name: Partition the new storage
     become: true
-    raw: parted -s {{ dev_path }} mklabel gpt mkpart primary {{ storage.fs_type }} 0% 100%
+    raw: parted -s {{ dev_path }} mklabel gpt mkpart primary {{ storage.type }} 0% 100%
     when: not part_tst.stdout
 
   - name: Get TYPE
@@ -40,12 +40,12 @@
       fs_type_curr: "{{ type_out.stdout }}"
 
 #  - debug: var=fs_type_curr
-#  - debug: var=storage.fs_type
+#  - debug: var=storage.type
 
-  - name: Make the "{{storage.fs_type}}" File System
+  - name: Make the "{{storage.type}}" File System
     become: true
-    raw: mkfs.{{ storage.fs_type }} {{ partition_path }} -f
-    when: not fs_type_curr is defined or fs_type_curr == "" or fs_type_curr != storage.fs_type
+    raw: mkfs.{{ storage.type }} {{ partition_path }} -f
+    when: not fs_type_curr is defined or fs_type_curr == "" or fs_type_curr != storage.type
 
   - stat:
       path: "{{ mnt_loc }}"
@@ -60,7 +60,7 @@
     mount:
       name: "{{ mnt_loc }}"
       src: "{{ partition_path }}"
-      fstype: "{{ storage.fs_type }}"
+      fstype: "{{ storage.type }}"
       opts: "rw,relatime,data=ordered"
       state: present
 
@@ -74,11 +74,11 @@
 
   - set_fact:
       mount_opts: "rw,relatime,data=ordered"
-    when: storage.fs_type == "ext4"
+    when: storage.type == "ext4"
 
   - set_fact:
       mount_opts: "rw,relatime,attr2,inode64,noquota"
-    when: storage.fs_type == "xfs"
+    when: storage.type == "xfs"
 
   - name: Unmount device
     become: true
@@ -91,6 +91,6 @@
     mount:
       name: "{{ mnt_loc }}"
       src: "UUID={{ uuid }}"
-      fstype: "{{ storage.fs_type }}"
+      fstype: "{{ storage.type }}"
       opts: "{{ mount_opts }}"
       state: mounted

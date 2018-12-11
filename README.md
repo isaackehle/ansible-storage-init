@@ -24,11 +24,9 @@ Example to create a 1 TB storage block that will eventually be assigned to `/dev
 
     storage:
       array_num: 1
-      size:
-        quan: 1
-        type: "T"
-      name: "sdb"
-      fs_type: "xfs"
+      size: 3T
+      name: sdb
+      type: xfs
 
 
   roles:
