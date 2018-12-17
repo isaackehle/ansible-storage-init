@@ -4,7 +4,7 @@ Initialize Storage for a machine
 
 Available on Ansible Galaxy: [pgkehle.storage-init](https://galaxy.ansible.com/pgkehle/storage-init)
 
-# Examples
+## Examples
 
 Example to create a 1 TB storage block that will eventually be assigned to `/dev/sdb1/`   
 
@@ -18,17 +18,14 @@ Example to create a 1 TB storage block that will eventually be assigned to `/dev
   vars:
 
     # Better to have in common vars_files input file  
-    mnt_loc: "/mnt/data"                                   
-    disk_name: "sdb"
-    partition_num: 1
+    mnt_loc: "/mnt/data"
 
     storage:
-      array_num: 1
-      size:
-        quan: 1
-        type: "T"
-      name: "sdb"
-      fs_type: "xfs"
+      disk_name: vdb
+      partition_num: 1
+      size: 3T
+      name: vdb
+      type: xfs
 
 
   roles:

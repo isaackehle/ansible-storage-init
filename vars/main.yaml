@@ -1,5 +1,5 @@
 ---
 
-dev_path: "/dev/{{ storage.name }}"
-partition_name: "{{ storage.name }}{{ partition_num }}"
+dev_path: "/dev/{{ storage_cfg.name }}"
+partition_name: "{{ storage_cfg.name }}{{ storage_cfg.partition_num }}"
 partition_path: "/dev/{{ partition_name }}"
