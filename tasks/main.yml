@@ -1,6 +1,4 @@
 ---
-  - debug: var=storage_cfg
-
   - name: Make sure packages are installed
     become: true
     apt: 
@@ -14,8 +12,6 @@
     raw: mount
     register: mnt_out
     ignore_errors: yes
-
-#  - debug: var=mnt_out
 
   - name: Unmount device, if mounted
     become: true
@@ -41,7 +37,6 @@
     register: type_out
 
   - set_fact: fs_type_curr={{ type_out.stdout }}
-  - debug: var=fs_type_curr
 
   - name: Make the "{{storage_cfg.type}}" File System
     become: true
