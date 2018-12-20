@@ -28,7 +28,7 @@
 
   - name: Partition the new storage
     become: true
-    raw: parted -s {{ dev_path }} mklabel gpt mkpart primary {{ storage_cfg.type }} 0% 100%
+    shell: parted -s {{ dev_path }} mklabel gpt mkpart primary {{ storage_cfg.type }} 0% 100%
     when: not part_tst.stdout
 
   - name: Get TYPE
