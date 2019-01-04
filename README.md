@@ -13,7 +13,7 @@ Example to create a 1 TB storage block that will eventually be assigned to `/dev
   remote_user: root
 
   vars_files:
-    - ./vars/configs/{{ ansible_hostname }}.yml
+    - ./vars/configs/{{ inventory_hostname }}.yml
 
   vars:
 
