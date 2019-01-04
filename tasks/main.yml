@@ -36,19 +36,25 @@
     command: blkid -s TYPE -o value {{ partition_path }}
     register: type_out
 
-  - set_fact: fs_type_curr={{ type_out.stdout }}
+  - name: Set FS Typo
+    set_fact: 
+      fs_type_curr: "{{ type_out.stdout }}"
 
-  - name: Make the "{{storage_cfg.type}}" File System
+  - name: Make the "{{ storage_cfg.type }}" File System
     become: true
     raw: mkfs.{{ storage_cfg.type }} {{ partition_path }} -f
     when: fs_type_curr is undefined or fs_type_curr == "" or fs_type_curr != storage_cfg.type
 
-  - stat: path={{ mnt_loc }}
+  - name: get mount stats
+    stat: 
+      path: "{{ mnt_loc }}"
     register: st
 
   - name: Kill {{ mnt_loc }} if it exists
+    file: 
+      path: "{{ mnt_loc }}" 
+      state: absent
     become: true
-    file: path="{{ mnt_loc }}" state=absent
 
   - name: Mount up device to get uuid
     become: true
@@ -64,13 +70,18 @@
     register: uuid_out
     become: true
 
-  - set_fact:
+  - name: Set UUID
+    set_fact:
       uuid: "{{ uuid_out.stdout }}"
 
-  - set_fact: mount_opts=rw,relatime,data=ordered
+  - name: Set ext4 mount options
+    set_fact: 
+      mount_opts: rw,relatime,data=ordered
     when: storage_cfg.type == "ext4"
 
-  - set_fact: mount_opts=rw,relatime,attr2,inode64,noquota
+  - name: Set xfs mount options
+    set_fact: 
+      mount_opts: rw,relatime,attr2,inode64,noquota
     when: storage_cfg.type == "xfs"
 
   - name: Unmount device
