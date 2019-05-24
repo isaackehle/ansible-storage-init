@@ -43,7 +43,7 @@
   - name: Make the "{{ storage_cfg.type }}" File System
     become: true
     raw: mkfs.{{ storage_cfg.type }} {{ partition_path }} -f
-    when: fs_type_curr is undefined or fs_type_curr == "" or fs_type_curr != storage_cfg.type
+    when: fs_type_curr is undefined or fs_type_curr | length == 0 or fs_type_curr != storage_cfg.type
 
   - name: get mount stats
     stat: 
