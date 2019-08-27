@@ -28,7 +28,7 @@
 
 - name: Partition the new storage
   become: true
-  shell: parted -s {{ partition_path }} mklabel gpt mkpart primary {{ partition_type }} 0% 100%
+  shell: parted -s {{ device_path }} mklabel gpt mkpart primary {{ partition_type }} 0% 100%
   when: not part_tst.stdout
 
 - name: Get TYPE
@@ -36,7 +36,7 @@
   command: blkid -s TYPE -o value {{ partition_path }}
   register: type_out
 
-- name: Set FS Typo
+- name: Set FS Type
   set_fact:
     fs_type_curr: "{{ type_out.stdout }}"
 
