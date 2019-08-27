@@ -16,9 +16,9 @@
 - name: Unmount device, if mounted
   become: true
   mount:
-    name: "{{ mnt_loc }}"
+    name: "{{ mnt_dir }}"
     state: unmounted
-  when: "mnt_loc in mnt_out.stdout"
+  when: "mnt_dir in mnt_out.stdout"
 
 - name: Test if the partition already exists
   shell: lsblk -o NAME | grep {{ partition_name }}
@@ -28,7 +28,7 @@
 
 - name: Partition the new storage
   become: true
-  shell: parted -s {{ dev_path }} mklabel gpt mkpart primary {{ storage_cfg.type }} 0% 100%
+  shell: parted -s {{ partition_path }} mklabel gpt mkpart primary {{ partition_type }} 0% 100%
   when: not part_tst.stdout
 
 - name: Get TYPE
@@ -40,28 +40,28 @@
   set_fact:
     fs_type_curr: "{{ type_out.stdout }}"
 
-- name: Make the "{{ storage_cfg.type }}" File System
+- name: Make the "{{ partition_type }}" File System
   become: true
-  raw: mkfs.{{ storage_cfg.type }} {{ partition_path }} -f
-  when: fs_type_curr is undefined or fs_type_curr | length == 0 or fs_type_curr != storage_cfg.type
+  raw: mkfs.{{ partition_type }} {{ partition_path }} -f
+  when: fs_type_curr is undefined or fs_type_curr | length == 0 or fs_type_curr != partition_type
 
 - name: get mount stats
   stat:
-    path: "{{ mnt_loc }}"
+    path: "{{ mnt_dir }}"
   register: st
 
-- name: Kill {{ mnt_loc }} if it exists
+- name: Kill {{ mnt_dir }} if it exists
   file:
-    path: "{{ mnt_loc }}"
+    path: "{{ mnt_dir }}"
     state: absent
   become: true
 
 - name: Mount up device to get uuid
   become: true
   mount:
-    name: "{{ mnt_loc }}"
+    name: "{{ mnt_dir }}"
     src: "{{ partition_path }}"
-    fstype: "{{ storage_cfg.type }}"
+    fstype: "{{ partition_type }}"
     opts: "rw,relatime,data=ordered"
     state: present
 
@@ -77,24 +77,24 @@
 - name: Set ext4 mount options
   set_fact:
     mount_opts: rw,relatime,data=ordered
-  when: storage_cfg.type == "ext4"
+  when: partition_type == "ext4"
 
 - name: Set xfs mount options
   set_fact:
     mount_opts: rw,relatime,attr2,inode64,noquota
-  when: storage_cfg.type == "xfs"
+  when: partition_type == "xfs"
 
 - name: Unmount device
   become: true
   mount:
-    name: "{{ mnt_loc }}"
+    name: "{{ mnt_dir }}"
     state: absent
 
 - name: Mount device and save to fstab
   become: true
   mount:
-    name: "{{ mnt_loc }}"
+    name: "{{ mnt_dir }}"
     src: "UUID={{ uuid }}"
-    fstype: "{{ storage_cfg.type }}"
+    fstype: "{{ partition_type }}"
     opts: "{{ mount_opts }}"
     state: mounted

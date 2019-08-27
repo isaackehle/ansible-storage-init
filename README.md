@@ -18,15 +18,10 @@ Example to create a 1 TB storage block that will eventually be assigned to `/dev
   vars:
 
     # Better to have in common vars_files input file  
-    mnt_loc: "/mnt/data"
-
-    storage:
-      disk_name: vdb
-      partition_num: 1
-      size: 3T
-      name: vdb
-      type: xfs
-
+    mnt_dir: "/mnt/data"
+    partition_type: xfs
+    device_name: sdb
+    partition_num: 1
 
   roles:
     - { role: pgkehle.storage-init }
