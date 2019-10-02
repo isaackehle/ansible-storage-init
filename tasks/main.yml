@@ -12,6 +12,7 @@
   raw: mount
   register: mnt_out
   ignore_errors: yes
+  when: true
 
 - name: Unmount device, if mounted
   become: true
@@ -21,20 +22,22 @@
   when: "mnt_dir in mnt_out.stdout"
 
 - name: Test if the partition already exists
-  shell: lsblk -o NAME | grep {{ partition_name }}
+  command: lsblk -o NAME | grep {{ partition_name }}
   become: true
   ignore_errors: true
   register: part_tst
+  when: true
 
 - name: Partition the new storage
   become: true
-  shell: parted -s {{ device_path }} mklabel gpt mkpart primary {{ partition_type }} 0% 100%
+  command: parted -s {{ device_path }} mklabel gpt mkpart primary {{ partition_type }} 0% 100%
   when: not part_tst.stdout
 
 - name: Get TYPE
   become: true
   command: blkid -s TYPE -o value {{ partition_path }}
   register: type_out
+  when: true
 
 - name: Set FS Type
   set_fact:
@@ -69,6 +72,7 @@
   command: blkid -s UUID -o value {{ partition_path }}
   register: uuid_out
   become: true
+  when: true
 
 - name: Set UUID
   set_fact:

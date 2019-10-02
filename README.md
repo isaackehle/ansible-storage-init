@@ -6,7 +6,7 @@ Available on Ansible Galaxy: [pgkehle.storage-init](https://galaxy.ansible.com/p
 
 ## Examples
 
-Example to create a 1 TB storage block that will eventually be assigned to `/dev/sdb1/`   
+Example to create a 1 TB storage block that will eventually be assigned to `/dev/sdb1/`
 
 ```yaml
 - hosts: all
@@ -16,8 +16,7 @@ Example to create a 1 TB storage block that will eventually be assigned to `/dev
     - ./vars/configs/{{ inventory_hostname }}.yml
 
   vars:
-
-    # Better to have in common vars_files input file  
+    # Better to have in common vars_files input file
     mnt_dir: "/mnt/data"
     partition_type: xfs
     device_name: sdb
@@ -25,6 +24,13 @@ Example to create a 1 TB storage block that will eventually be assigned to `/dev
 
   roles:
     - { role: pgkehle.storage-init }
+```
+
+## Linting
+
+```bash
+yamllint -c yamllint.yaml .
+ansible-lint .
 ```
 
 ## License
@@ -35,4 +41,3 @@ MIT
 
 Paul Kehle  
 @pgkehle ([twitter](https://twitter.com/pgkehle), [github](https://github.com/pgkehle), [linkedin](https://www.linkedin.com/in/pgkehle))
-
