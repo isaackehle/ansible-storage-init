@@ -2,7 +2,7 @@
 
 Initialize Storage for a machine
 
-Available on Ansible Galaxy: [pgkehle.storage-init](https://galaxy.ansible.com/pgkehle/storage-init)
+Available on Ansible Galaxy: [isaackehle.storage-init](https://galaxy.ansible.com/isaackehle/storage-init)
 
 ## Examples
 
@@ -23,7 +23,7 @@ Example to create a 1 TB storage block that will eventually be assigned to `/dev
     partition_num: 1
 
   roles:
-    - { role: pgkehle.storage-init }
+    - { role: isaackehle.storage-init }
 ```
 
 ## Linting
@@ -39,5 +39,5 @@ MIT
 
 ## Author Information
 
-Paul Kehle  
-@pgkehle ([twitter](https://twitter.com/pgkehle), [github](https://github.com/pgkehle), [linkedin](https://www.linkedin.com/in/pgkehle))
+Isaac Kehle
+@isaackehle ([twitter](https://twitter.com/isaackehle), [github](https://github.com/isaackehle), [linkedin](https://www.linkedin.com/in/isaackehle))
